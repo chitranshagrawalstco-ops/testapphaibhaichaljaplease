@@ -21,9 +21,9 @@ def create_app(config_class=Config):
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Register Blueprints
-    from .blueprints.public.routes import public_bp
-    from .blueprints.admin.routes import admin_bp
-    from .blueprints.auth.routes import auth_bp
+    from app.blueprints.public.routes import public_bp
+    from app.blueprints.admin.routes import admin_bp
+    from app.blueprints.auth.routes import auth_bp
 
     app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
