@@ -1,45 +1,24 @@
-# Python
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Python (kept for reference or if you still use local scripts)
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-*.egg-info/
-dist/
-build/
-*.egg
-
-# Virtual Environment
 .venv/
 venv/
-env/
-
-# Environment Variables (NEVER push secrets)
-.env
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+instance/
+*.db
 
 # OS
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# SQLite local DB
-instance/
-*.db
-
-# Uploads (user-generated content)
-app/static/uploads/*
-!app/static/uploads/.gitkeep
-
-# Migration scripts (one-time use)
-migrate_is_deleted.py
-test_supabase.py
-test_conn.py
-check_settings.py
+# Secrets
+.env
+.env.production
 
 # Gemini
 .gemini/

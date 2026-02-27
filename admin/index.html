@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | StreetBite</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-slate-50 font-['Outfit']">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 z-[100] bg-primary-600 flex items-center justify-center px-4">
+        <div class="glass-card max-w-md w-full p-10 bg-white/95 space-y-8 animate-fade-in">
+            <div class="text-center space-y-2">
+                <div
+                    class="w-16 h-16 bg-primary-600 rounded-2xl mx-auto flex items-center justify-center shadow-xl mb-4">
+                    <span class="text-white text-3xl font-bold">S</span>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-900">Admin Login</h1>
+                <p class="text-slate-500">Access your restaurant command center.</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700 ml-1">Username</label>
+                    <input type="text" id="username" required
+                        class="w-full px-6 py-4 bg-slate-100 rounded-2xl border-2 border-transparent focus:border-primary-600 focus:bg-white transition-all outline-none"
+                        placeholder="Enter username">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700 ml-1">Password</label>
+                    <input type="password" id="password" required
+                        class="w-full px-6 py-4 bg-slate-100 rounded-2xl border-2 border-transparent focus:border-primary-600 focus:bg-white transition-all outline-none"
+                        placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary w-full py-5 text-xl">Sign In</button>
+            </form>
+            <p id="loginError" class="text-rose-600 text-center font-bold text-sm hidden">Invalid credentials. Please
+                try again.</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (Hidden initially) -->
+    <div id="adminPanel" class="hidden min-h-screen flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-72 bg-white border-r border-slate-200 p-8 flex flex-col">
+            <div class="flex items-center gap-3 mb-12">
+                <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white text-sm font-bold">S</span>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-slate-800">Street<span
+                        class="text-primary-600">Bite</span></span>
+            </div>
+
+            <nav class="flex-1 space-y-2">
+                <button data-tab="dashboard"
+                    class="nav-tab w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-primary-50 text-primary-600 font-bold transition-all">
+                    <span>📊</span> Dashboard
+                </button>
+                <button data-tab="items"
+                    class="nav-tab w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-slate-500 hover:bg-slate-50 font-bold transition-all">
+                    <span>🍔</span> Menu Items
+                </button>
+                <button data-tab="categories"
+                    class="nav-tab w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-slate-500 hover:bg-slate-50 font-bold transition-all">
+                    <span>📂</span> Categories
+                </button>
+                <button data-tab="settings"
+                    class="nav-tab w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-slate-500 hover:bg-slate-50 font-bold transition-all">
+                    <span>⚙️</span> Settings
+                </button>
+            </nav>
+
+            <button id="logoutBtn"
+                class="mt-8 flex items-center gap-4 px-6 py-4 rounded-2xl text-rose-600 font-bold hover:bg-rose-50 transition-all">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="flex-1 p-8 md:p-12 overflow-y-auto">
+            <!-- Dashboard Tab -->
+            <section id="dashboardSection" class="tab-content space-y-8 animate-fade-in">
+                <header class="flex justify-between items-center">
+                    <h2 class="text-4xl font-bold text-slate-900">Dashboard Overview</h2>
+                    <div id="quickStatus"
+                        class="px-6 py-3 bg-white rounded-2xl shadow-sm font-bold text-emerald-600 border border-emerald-100 flex items-center gap-2">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Shop Open
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 bg-white space-y-4">
+                        <span class="text-4xl">🍔</span>
+                        <div class="space-y-1">
+                            <h3 class="text-slate-500 font-bold uppercase text-xs tracking-wider">Total Items</h3>
+                            <p id="statItems" class="text-4xl font-bold text-slate-900">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 bg-white space-y-4">
+                        <span class="text-4xl">📂</span>
+                        <div class="space-y-1">
+                            <h3 class="text-slate-500 font-bold uppercase text-xs tracking-wider">Categories</h3>
+                            <p id="statCats" class="text-4xl font-bold text-slate-900">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-8 bg-white space-y-4">
+                        <span class="text-4xl">🗨️</span>
+                        <div class="space-y-1">
+                            <h3 class="text-slate-500 font-bold uppercase text-xs tracking-wider">Orders Today</h3>
+                            <p id="statOrders" class="text-4xl font-bold text-slate-900">~</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Menu Items Tab -->
+            <section id="itemsSection" class="tab-content hidden space-y-8 animate-fade-in">
+                <header class="flex justify-between items-center">
+                    <h2 class="text-4xl font-bold text-slate-900">Menu Items</h2>
+                    <button id="addItemBtn" class="btn-primary flex items-center gap-2 py-3 px-6 text-sm">
+                        <span>+</span> Add New Item
+                    </button>
+                </header>
+                <div class="glass-card bg-white overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-8 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Item
+                                </th>
+                                <th class="px-8 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">
+                                    Category</th>
+                                <th class="px-8 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Price
+                                </th>
+                                <th class="px-8 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Status
+                                </th>
+                                <th
+                                    class="px-8 py-4 text-xs font-black text-slate-400 uppercase tracking-widest text-right">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsList">
+                            <!-- Items load here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Categories Tab -->
+            <section id="categoriesSection" class="tab-content hidden space-y-8 animate-fade-in">
+                <header class="flex justify-between items-center">
+                    <h2 class="text-4xl font-bold text-slate-900">Categories</h2>
+                    <div class="flex gap-4">
+                        <input type="text" id="newCatName" placeholder="Category Name"
+                            class="px-6 py-3 bg-white border border-slate-200 rounded-xl focus:border-primary-600 outline-none shadow-sm">
+                        <button id="addCatBtn"
+                            class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl hover:bg-primary-600 transition-all shadow-lg active:scale-95">Add</button>
+                    </div>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="categoriesGrid">
+                    <!-- Categories load here -->
+                </div>
+            </section>
+
+            <!-- Settings Tab -->
+            <section id="settingsSection" class="tab-content hidden space-y-8 animate-fade-in">
+                <h2 class="text-4xl font-bold text-slate-900">Store Settings</h2>
+                <div class="glass-card bg-white p-10 space-y-10">
+                    <div class="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-xl text-slate-900">Shop Status</h4>
+                            <p class="text-slate-500">Toggle this to allow or block new orders.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="shopStatusToggle" class="sr-only peer">
+                            <div
+                                class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 ml-1">WhatsApp Number</label>
+                            <input type="text" id="settingPhone"
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:border-primary-600 focus:bg-white transition-all outline-none"
+                                placeholder="e.g. +91 9876543210">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700 ml-1">UPI ID for Payments</label>
+                            <input type="text" id="settingUPI"
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:border-primary-600 focus:bg-white transition-all outline-none"
+                                placeholder="e.g. user@okaxis">
+                        </div>
+                    </div>
+
+                    <button id="saveSettingsBtn" class="btn-primary w-full py-5 text-xl">Save Brand Settings</button>
+
+                    <hr class="border-slate-100">
+
+                    <div class="space-y-6">
+                        <h4 class="font-bold text-xl text-slate-900">Change Admin Password</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="password" id="newAdminPass"
+                                class="w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:border-primary-600 focus:bg-white outline-none"
+                                placeholder="New Password">
+                            <button id="updatePassBtn"
+                                class="bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-rose-600 transition-all shadow-lg active:scale-95">Update
+                                Password</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="itemModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div
+            class="glass-card bg-white w-full max-w-2xl relative p-10 space-y-6 animate-fade-in overflow-y-auto max-h-[90vh]">
+            <h3 id="modalTitle" class="text-3xl font-bold text-slate-900">Add Menu Item</h3>
+            <form id="itemForm" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 ml-1">Item Name</label>
+                        <input type="text" id="itemName" required
+                            class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary-600 outline-none shadow-sm">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 ml-1">Price (₹)</label>
+                        <input type="number" id="itemPrice" required
+                            class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary-600 outline-none shadow-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 ml-1">Category</label>
+                        <select id="itemCat" required
+                            class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary-600 outline-none shadow-sm appearance-none">
+                            <!-- Categories load here -->
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700 ml-1">Veg / Non-Veg</label>
+                        <select id="itemType"
+                            class="w-full px-6 py-4 bg-slate-50 rounded-2xl border border-slate-100 focus:border-primary-600 outline-none shadow-sm appearance-none">
+                            <option value="false">Veg</option>
+                            <option value="true">Non-Veg</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-slate-700 ml-1 text-emerald-600">Product Image (Supabase
+                        Storage)</label>
+                    <input type="file" id="itemImage" accept="image/*"
+                        class="w-full px-4 py-3 bg-white border border-dashed border-slate-300 rounded-2xl cursor-pointer hover:bg-slate-50 transition-all">
+                    <p class="text-[10px] text-slate-400">If you leave this empty, the existing image will be kept.</p>
+                </div>
+
+                <div class="flex gap-4">
+                    <button type="button" id="closeModal"
+                        class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all active:scale-95">Cancel</button>
+                    <button type="submit" class="flex-[2] btn-primary py-4">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/src/admin.js"></script>
+</body>
+
+</html>
