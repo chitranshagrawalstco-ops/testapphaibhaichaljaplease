@@ -3,10 +3,9 @@ from flask import Flask, render_template
 from config import Config
 from .extensions import db, login_manager, csrf
 
-# Top-level imports force Vercel's builder to include these folders in the Serverless bundle
-from app.blueprints.public.routes import public_bp
-from app.blueprints.admin.routes import admin_bp
-from app.blueprints.auth.routes import auth_bp
+from blueprints.public.routes import public_bp
+from blueprints.admin.routes import admin_bp
+from blueprints.auth.routes import auth_bp
 
 def create_app(config_class=Config):
     app = Flask(__name__)
