@@ -12,9 +12,13 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     csrf.init_app(app)
 
-    # Ensure upload folder exists
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
+    # Ensure upload folder exists (use /tmp on serverless)
+    try:
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
+    except OSError:
+        app.config['UPLOAD_FOLDER'] = os.path.join('/tmp', 'uploads')
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Register Blueprints
     from .blueprints.public.routes import public_bp
