@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Food Palace - Authentic Indian Street Food{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e11d48",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221a10",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem" }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fouc-cloak {
+            opacity: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen selection:bg-primary/30 fouc-cloak">
+    {% include 'public/_navbar.html' %}
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="fixed top-20 right-4 z-[100] flex flex-col gap-2">
+            {% for category, message in messages %}
+            <div
+                class="px-4 py-3 rounded-xl shadow-lg border border-primary/20 backdrop-blur-md {% if category == 'success' %}bg-white/90 text-emerald-600{% else %}bg-white/90 text-rose-600{% endif %} animate-bounce-short">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'public/_footer.html' %}
+
+    <script>
+        // Auto-hide flashes
+        setTimeout(() => {
+            document.querySelectorAll('.animate-bounce-short').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.5s';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 3000);
+    </script>
+    {% block scripts %}{% endblock %}
+    <!-- Global Cart Button (Public) -->
+    {% if not request.path.startswith('/admin') and not request.path.startswith('/auth') %}
+    <div id="cartDrawerTrigger" onclick="toggleCartDrawer()" class="fixed bottom-6 right-6 z-50 group">
+        <div
+            class="relative bg-primary text-white size-16 rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center cursor-pointer hover:scale-110 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-3xl">shopping_cart</span>
+            <span id="cartBadge"
+                class="absolute -top-1 -right-1 bg-white text-primary text-[10px] font-black size-6 rounded-full flex items-center justify-center border-2 border-primary hidden">0</span>
+        </div>
+    </div>
+
+    <!-- Right Side Cart Drawer -->
+    <div id="cartDrawer"
+        class="fixed inset-y-0 right-0 w-full max-w-sm bg-white dark:bg-slate-900 z-[60] shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="text-xl font-black">Your Cart</h2>
+            <button onclick="toggleCartDrawer()"
+                class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <!-- Items -->
+        </div>
+        <div id="cartFooter" class="p-6 border-t border-slate-100 dark:border-slate-800 space-y-4 hidden">
+            <div class="flex justify-between items-center font-black text-lg">
+                <span>Total</span>
+                <span id="cartTotal">₹0</span>
+            </div>
+            <a id="checkoutBtn" href="{{ url_for('public.order_choice') }}"
+                class="block w-full bg-primary text-white text-center font-black py-4 rounded-2xl shadow-lg shadow-primary/20 hover:brightness-110 transition-all">
+                Checkout Now
+            </a>
+        </div>
+    </div>
+
+    <div id="cartOverlay" onclick="toggleCartDrawer()"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[55] hidden opacity-0 transition-opacity duration-300">
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('streetbite_cart')) || [];
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const itemsContainer = document.getElementById('cartItems');
+            const footer = document.getElementById('cartFooter');
+            const totalEl = document.getElementById('cartTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = `<div class="empty-cart flex flex-col items-center justify-center h-full text-slate-400 text-center"><span class="material-symbols-outlined text-6xl mb-2">production_quantity_limits</span><p class="font-bold">Your cart is empty</p></div>`;
+                footer.classList.add('hidden');
+            } else {
+                footer.classList.remove('hidden');
+                let total = 0;
+                itemsContainer.innerHTML = cart.map((item, index) => {
+                    const subtotal = item.price * item.quantity;
+                    total += subtotal;
+                    return `
+                    <div class="flex gap-4 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm line-clamp-1">${item.name}</h4>
+                            <div class="text-xs text-slate-500 mt-1">₹${item.price} × ${item.quantity}</div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <div class="font-black text-sm text-primary">₹${subtotal}</div>
+                            <div class="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
+                                <button onclick="changeQty(${index}, -1)" class="size-6 flex items-center justify-center text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-sm">remove</span></button>
+                                <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
+                                <button onclick="changeQty(${index}, 1)" class="size-6 flex items-center justify-center text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-sm">add</span></button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+                totalEl.textContent = `₹${total}`;
+            }
+        }
+
+        function addToCart(item) {
+            const existing = cart.find(c => c.id === item.id);
+            if (existing) { existing.quantity += 1; }
+            else { cart.push({ ...item, quantity: 1 }); }
+            localStorage.setItem('streetbite_cart', JSON.stringify(cart));
+            updateCartUI();
+            const trigger = document.getElementById('cartDrawerTrigger').firstElementChild;
+            trigger.classList.add('scale-125');
+            setTimeout(() => trigger.classList.remove('scale-125'), 200);
+        }
+
+        function changeQty(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) { cart.splice(index, 1); }
+            localStorage.setItem('streetbite_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cartDrawer');
+            const overlay = document.getElementById('cartOverlay');
+            const isOpen = drawer.classList.contains('translate-x-0');
+            if (isOpen) {
+                drawer.classList.add('translate-x-full'); drawer.classList.remove('translate-x-0');
+                overlay.classList.add('opacity-0', 'hidden'); overlay.classList.remove('opacity-100');
+            } else {
+                drawer.classList.remove('translate-x-full'); drawer.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                setTimeout(() => { overlay.classList.add('opacity-100'); overlay.classList.remove('opacity-0'); }, 10);
+                updateCartUI();
+            }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+            setTimeout(() => {
+                document.body.classList.remove('fouc-cloak');
+            }, 100);
+        });
+    </script>
+    {% endif %}
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Flask-WTF
+WTForms
+Werkzeug
+python-dotenv
+bcrypt
+Pillow
+gunicorn
+psycopg2-binary

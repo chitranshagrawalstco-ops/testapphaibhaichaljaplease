@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# Environment Variables (NEVER push secrets)
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# SQLite local DB
+instance/
+*.db
+
+# Uploads (user-generated content)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# Migration scripts (one-time use)
+migrate_is_deleted.py
+test_supabase.py
+test_conn.py
+check_settings.py
+
+# Gemini
+.gemini/

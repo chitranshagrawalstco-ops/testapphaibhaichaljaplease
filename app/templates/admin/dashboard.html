@@ -1,0 +1,161 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <header>
+        <h1 class="text-3xl font-black tracking-tight">Welcome back, Admin!</h1>
+        <p class="text-slate-500 mt-1">Here's how The Food Palace is performing today.</p>
+    </header>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-primary/5">
+            <div class="flex justify-between items-center mb-4">
+                <span class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                    <span class="material-symbols-outlined">payments</span>
+                </span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Sales</span>
+            </div>
+            <div class="text-3xl font-black">₹{{ "{:,.0f}".format(today_sales) }}</div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-primary/5">
+            <div class="flex justify-between items-center mb-4">
+                <span class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                </span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Last 30 Days</span>
+            </div>
+            <div class="text-3xl font-black">₹{{ "{:,.0f}".format(thirty_day_sales) }}</div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-primary/5">
+            <div class="flex justify-between items-center mb-4">
+                <span class="p-2 bg-primary/10 rounded-lg text-primary">
+                    <span class="material-symbols-outlined">shopping_basket</span>
+                </span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Orders</span>
+            </div>
+            <div class="text-3xl font-black">{{ total_orders }}</div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-primary/5">
+            <div class="flex justify-between items-center mb-4">
+                <span class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                    <span class="material-symbols-outlined">visibility</span>
+                </span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Views</span>
+            </div>
+            <div class="text-3xl font-black">{{ today_count }}</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- 7 Day Sales Trend -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-primary/5">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-lg font-bold">7-Day Sales Trend</h3>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Revenue (₹)</div>
+            </div>
+            <div class="flex items-end justify-between h-64 gap-4 px-2">
+                {% for day in sales_trend %}
+                <div class="flex-1 flex flex-col items-center gap-4">
+                    <div class="w-full bg-primary/20 rounded-t-xl relative group transition-all hover:bg-primary/30"
+                        style="height: {{ day.height }}%; min-height: 4px;">
+                        <div
+                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold shadow-xl">
+                            ₹{{ day.value }}
+                        </div>
+                    </div>
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-tighter">{{ day.label }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Most Ordered Today -->
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-primary/5">
+            <h3 class="text-lg font-bold mb-6">Today's Most Ordered</h3>
+            <div class="space-y-5">
+                {% for item in most_ordered %}
+                <div class="flex items-center gap-4 group">
+                    <div class="relative">
+                        <div
+                            class="size-12 rounded-xl bg-slate-100 dark:bg-slate-900 overflow-hidden ring-2 ring-primary/5 group-hover:ring-primary/20 transition-all">
+                            {% if item.image_path %}
+                            <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}"
+                                class="w-full h-full object-cover">
+                            {% else %}
+                            <span class="material-symbols-outlined m-auto text-slate-300">image</span>
+                            {% endif %}
+                        </div>
+                        <span
+                            class="absolute -top-2 -right-2 size-6 bg-primary text-white text-[10px] font-black rounded-lg flex items-center justify-center shadow-lg">
+                            {{ item.qty }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-slate-900 dark:text-white">{{ item.name }}</p>
+                        <p class="text-[10px] font-black text-primary uppercase tracking-widest">Orders: {{ item.qty }}
+                        </p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="py-10 text-center text-slate-400 space-y-2">
+                    <span class="material-symbols-outlined text-4xl block">receipt_long</span>
+                    <p class="text-sm font-medium">No sales recorded today</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-primary/5 overflow-hidden">
+        <div class="p-6 border-b border-primary/5 flex justify-between items-center">
+            <h3 class="text-lg font-bold">Recent Bookings</h3>
+            <a href="{{ url_for('admin.orders') }}" class="text-primary text-sm font-bold hover:underline">View All
+                Orders</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 dark:bg-slate-900/50">
+                    <tr>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Customer
+                        </th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Total</th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Status
+                        </th>
+                        <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Arrival
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/20">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-sm">{{ order.customer_name }}</div>
+                            <div class="text-[10px] text-slate-500">{{ order.customer_phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 font-black text-primary text-sm">₹{{ order.total_price }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-wider 
+                                {% if order.status == 'Pending' %}bg-blue-100 text-blue-600
+                                {% elif order.status == 'Completed' %}bg-emerald-100 text-emerald-600
+                                {% else %}bg-rose-100 text-rose-600{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-[10px] font-bold text-slate-400">
+                            {{ order.estimated_arrival_time or 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

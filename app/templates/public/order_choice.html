@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - The Food Palace{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center p-6 bg-background-light dark:bg-background-dark">
+    <div class="w-full max-w-md space-y-8 text-center pt-10">
+        <header class="space-y-2">
+            <div class="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full text-primary mb-2">
+                <span class="material-symbols-outlined text-4xl">shopping_cart_checkout</span>
+            </div>
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Review & Checkout</h1>
+            <p id="totalSummary" class="text-primary font-bold text-lg"></p>
+            <p class="text-slate-500 dark:text-slate-400 font-medium tracking-tight">How would you like to receive your
+                order?</p>
+        </header>
+
+        <div id="checkoutForm"
+            class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-xl border border-primary/5 space-y-6">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 text-left px-1">Your
+                        Name</label>
+                    <input type="text" id="custName"
+                        class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary transition-all font-medium"
+                        placeholder="E.g. John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 text-left px-1">Phone
+                        Number</label>
+                    <input type="tel" id="custPhone"
+                        class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary transition-all font-medium"
+                        placeholder="E.g. 9876543210">
+                </div>
+                <!-- Arrival time only shown for pre-book or always visible but labeled -->
+                <div id="arrivalSection" class="pt-2 border-t border-slate-100 dark:border-slate-700 mt-4 pt-4">
+                    <label
+                        class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 text-left px-1 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        Arrival Time (For Pre-books)
+                    </label>
+                    <input type="time" id="arrivalTime"
+                        class="w-full px-5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary transition-all font-medium">
+                </div>
+            </div>
+
+            <div class="grid gap-4 pt-4">
+                <button onclick="processCheckout('Pre-book')"
+                    class="group relative flex items-center gap-6 p-5 bg-primary text-white rounded-2xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all text-left">
+                    <div class="size-12 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-2xl">event_available</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Pre-book Order</h3>
+                        <p class="text-[10px] text-white/80 uppercase font-black">50% Advance Required</p>
+                    </div>
+                    <span class="material-symbols-outlined text-white absolute right-6">arrow_forward</span>
+                </button>
+
+                <button onclick="processCheckout('At Stall')"
+                    class="group relative flex items-center gap-6 p-5 bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-800 active:scale-95 transition-all text-left border border-slate-200 dark:border-slate-700">
+                    <div
+                        class="size-12 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-2xl">storefront</span>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Book at Stall</h3>
+                        <p class="text-[10px] text-slate-500 uppercase font-black">Pay at counter</p>
+                    </div>
+                    <span
+                        class="material-symbols-outlined text-slate-400 absolute right-6 group-hover:text-primary transition-colors">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="pt-4 text-center pb-12">
+            <a href="{{ url_for('public.menu') }}"
+                class="text-sm font-bold text-slate-400 hover:text-primary transition-colors inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Back to Menu
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal"
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div
+        class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] shadow-2xl p-8 text-center space-y-6 transform scale-95 transition-transform duration-300">
+        <header class="space-y-1">
+            <div class="flex justify-center mb-2">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Razorpay_logo.svg" alt="Razorpay"
+                    class="h-6">
+            </div>
+            <h2 class="text-2xl font-black">Advance Payment</h2>
+            <p class="text-slate-500 text-sm">Scan to book your order at The Food Palace</p>
+        </header>
+
+        <div
+            class="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl space-y-4 border border-slate-100 dark:border-slate-800">
+            <div id="qrContainer" class="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto relative group">
+                <img id="qrImage" src="" alt="Payment QR" class="size-48 mx-auto">
+                <div class="absolute inset-x-0 -bottom-2 flex justify-center">
+                    <span
+                        class="bg-primary text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">Powered
+                        by Razorpay / UPI</span>
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p id="advanceAmount" class="text-2xl font-black text-primary">₹0</p>
+                <p id="totalPriceLabel" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">50% OF
+                    TOTAL ORDER</p>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <p class="text-xs text-slate-400">Scan this QR with any UPI App (GPay, PhonePe, etc.)</p>
+            <button onclick="confirmOrderAfterPayment()"
+                class="w-full bg-primary text-white font-black py-4 rounded-2xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                I have paid. Notify on WhatsApp
+            </button>
+            <button onclick="closePaymentModal()"
+                class="w-full py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentOrderData = null;
+        let upiId = "{{ settings.upi_id }}";
+        let storeName = "The Food Palace";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cart = JSON.parse(localStorage.getItem('streetbite_cart')) || [];
+            if (cart.length === 0) {
+                window.location.href = "{{ url_for('public.menu') }}";
+                return;
+            }
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('totalSummary').textContent = `Total Items: ${cart.length} | Total Price: ₹${total}`;
+        });
+
+        async function processCheckout(orderType) {
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const arrivalTimeValue = document.getElementById('arrivalTime').value;
+            const cart = JSON.parse(localStorage.getItem('streetbite_cart')) || [];
+
+            if (orderType === 'Pre-book' && !arrivalTimeValue) {
+                alert('Please select an estimated arrival time for Pre-booking.');
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                window.location.href = "{{ url_for('public.menu') }}";
+                return;
+            }
+
+            const total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const buttons = document.querySelectorAll('#checkoutForm button');
+            buttons.forEach(b => b.disabled = true);
+
+            try {
+                const response = await fetch("{{ url_for('public.create_order') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        name, phone, order_type: orderType, arrival_time: orderType === 'Pre-book' ? arrivalTimeValue : null, total_price, items: cart
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentOrderData = { id: data.order_id, cart, total: total_price, orderType, name, phone, arrivalTime: orderType === 'Pre-book' ? arrivalTimeValue : 'N/A' };
+
+                    if (orderType === 'Pre-book') {
+                        showPaymentModal(total_price, data.order_id);
+                    } else {
+                        window.location.href = `/order-success/${data.order_id}`;
+                    }
+                } else {
+                    alert('Something went wrong. Please try again.');
+                    buttons.forEach(b => b.disabled = false);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error connecting to server.');
+                buttons.forEach(b => b.disabled = false);
+            }
+        }
+
+
+        function showPaymentModal(total, orderId) {
+            const advance = (total * 0.5).toFixed(2);
+            document.getElementById('advanceAmount').textContent = `₹${advance}`;
+            document.getElementById('totalPriceLabel').textContent = `50% OF TOTAL (₹${total})`;
+
+            const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(storeName)}&am=${advance}&tr=${orderId}&cu=INR&tn=${encodeURIComponent('Advance for Order #' + orderId)}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+            document.getElementById('qrImage').src = qrUrl;
+
+            const modal = document.getElementById('paymentModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modal.firstElementChild.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closePaymentModal() {
+            const modal = document.getElementById('paymentModal');
+            modal.classList.remove('opacity-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            const buttons = document.querySelectorAll('#checkoutForm button');
+            buttons.forEach(b => b.disabled = false);
+        }
+
+        function confirmOrderAfterPayment() {
+            if (!currentOrderData) return;
+            window.location.href = `/order-success/${currentOrderData.id}`;
+        }
+
+        function finalizeWhatsAppOrder(data, isPaid = false) {
+            localStorage.removeItem('streetbite_cart');
+            let itemStr = data.cart.map(i => `- ${i.name} x${i.quantity}`).join('%0A');
+            let status = isPaid ? "✅ *ADVANCE PAID (50%)*" : "⏳ *Pay at Stall*";
+            let arrivalStr = data.orderType === 'Pre-book' ? `%0AArrival Time: *${data.arrivalTime}*` : "";
+            let message = `Hello! I would like to place an ${data.orderType} order.%0A%0AOrder ID: *#${data.id}*%0AStatus: ${status}%0A%0AItems:%0A${itemStr}${arrivalStr}%0A%0ATotal: ₹${data.total}%0A%0AName: ${data.name || 'N/A'}%0APhone: ${data.phone || 'N/A'}`;
+            const waUrl = `https://wa.me/{{ settings.phone|replace(' ', '')|replace('+', '') }}?text=${message}`;
+            window.location.href = waUrl;
+        }
+    </script>
+    {% endblock %}

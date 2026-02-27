@@ -1,0 +1,152 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-4xl">
+    <header>
+        <h1 class="text-3xl font-black tracking-tight">Store Settings</h1>
+        <p class="text-slate-500 mt-1">Update your contact info, hours, and store details.</p>
+    </header>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-primary/5 p-8">
+        <form action="{{ url_for('admin.settings') }}" method="POST" class="space-y-8">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Contact Info -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">contact_support</span>
+                            Contact Information
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] uppercase font-black text-slate-400">Shop Status:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="shop_status" value="open" {% if
+                                    settings.shop_status=='open' %}checked{% endif %} class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                                </div>
+                                <span
+                                    class="ml-2 text-sm font-bold uppercase tracking-tighter peer-checked:text-emerald-600 text-slate-400">
+                                    {% if settings.shop_status == 'open' %}Open{% else %}Closed{% endif %}
+                                </span>
+                            </label>
+                        </div>
+                    </h3>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">WhatsApp Business Number</label>
+                        <input type="text" name="phone" value="{{ settings.phone }}"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                        <p class="text-[10px] text-slate-400 mt-1">Include country code (e.g., +91 98765 43210)</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">WhatsApp Default Message</label>
+                        <textarea name="whatsapp_msg" rows="2"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">{{ settings.whatsapp_msg }}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Razorpay / UPI ID (VPA)</label>
+                        <input type="text" name="upi_id" value="{{ settings.upi_id }}"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                        <p class="text-[10px] text-slate-400 mt-1">Used for auto-generating payment QRs (e.g.,
+                            example@upi)</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Store Address</label>
+                        <textarea name="address" rows="3"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">{{ settings.address }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Business Hours -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">schedule</span>
+                        Opening Hours
+                    </h3>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Mon - Fri Hours</label>
+                        <input type="text" name="hours_weekday" value="{{ settings.hours_weekday }}"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Saturday Hours</label>
+                        <input type="text" name="hours_saturday" value="{{ settings.hours_saturday }}"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Sunday Hours</label>
+                        <input type="text" name="hours_sunday" value="{{ settings.hours_sunday }}"
+                            class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Settings -->
+            <div class="pt-8 border-t border-slate-100 dark:border-slate-700">
+                <h3 class="text-lg font-bold flex items-center gap-2 mb-6">
+                    <span class="material-symbols-outlined text-primary">palette</span>
+                    Visuals
+                </h3>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2">Hero Banner URL</label>
+                    <input type="text" name="banner_url" value="{{ settings.banner_url }}"
+                        class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button type="submit"
+                    class="bg-primary text-white font-bold px-10 py-4 rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Account Settings -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-primary/5 p-8">
+        <form action="{{ url_for('admin.settings') }}" method="POST" class="space-y-6">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="update_account" value="1">
+
+            <h3 class="text-lg font-bold flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">manage_accounts</span>
+                Admin Login Credentials
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold mb-2">New Admin Username</label>
+                    <input type="text" name="username" placeholder="Leave blank to keep current"
+                        class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold mb-2">New Admin Password</label>
+                    <input type="password" name="password" placeholder="Leave blank to keep current"
+                        class="w-full px-4 py-3 rounded-xl border-slate-200 focus:border-primary focus:ring-primary bg-slate-50 dark:bg-slate-900">
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button type="submit"
+                    class="bg-slate-900 dark:bg-slate-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                    Update Login Info
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

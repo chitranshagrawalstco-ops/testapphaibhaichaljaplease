@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}500 - Server Error{% endblock %}
+{% block content %}
+<div class="min-h-[70vh] flex flex-col items-center justify-center text-center p-6">
+    <span class="material-symbols-outlined text-9xl text-rose-500/20 mb-4 animate-bounce">warning</span>
+    <h1 class="text-4xl font-black mb-2">Something went wrong.</h1>
+    <p class="text-slate-500 mb-8 max-w-sm">Our kitchen is experiencing some technical difficulties. Please try again
+        later.</p>
+    <a href="{{ url_for('public.index') }}"
+        class="bg-primary text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-transform">
+        Refund to Home
+    </a>
+</div>
+{% endblock %}

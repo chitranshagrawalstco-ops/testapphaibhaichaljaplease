@@ -1,0 +1,18 @@
+<nav
+    class="flex items-center bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50 p-4 justify-between border-b border-primary/10">
+    <a href="{{ url_for('public.index') }}" class="flex items-center gap-3">
+        <div class="text-primary flex size-10 shrink-0 items-center justify-center bg-primary/10 rounded-full">
+            <span class="material-symbols-outlined">storefront</span>
+        </div>
+        <h2 class="text-slate-900 dark:text-slate-100 text-xl font-black leading-tight tracking-tight">The Food Palace
+        </h2>
+    </a>
+    <div class="flex items-center gap-2">
+        <a href="{{ url_for('public.menu') }}"
+            class="px-4 py-2 font-bold text-sm text-slate-600 dark:text-slate-400 hover:text-primary transition-colors">Menu</a>
+        <a href="{{ url_for('public.menu') }}"
+            class="flex items-center justify-center rounded-full size-10 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors">
+            <span class="material-symbols-outlined">shopping_bag</span>
+        </a>
+    </div>
+</nav>
